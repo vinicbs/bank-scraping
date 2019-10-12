@@ -1,0 +1,38 @@
+{
+  "name": "bank-scraping",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "tsc": "tsc",
+    "test": "mocha -r ts-node/register tests/**/*.test.ts --exit",
+    "test-dev": "nodemon --watch . --ext ts --exec \"mocha -r ts-node/register tests/**/*.test.ts\"",
+    "dev": "ts-node-dev --respawn --transpileOnly ./src/app/app.ts",
+    "prod": "tsc && node ./build/app.js"
+  },
+  "author": "Vinicius Costa Barbosa dos Santos",
+  "license": "ISC",
+  "dependencies": {
+    "@types/chai": "^4.2.3",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^4.17.1",
+    "@types/mocha": "^5.2.7",
+    "@types/mongoose": "^5.5.20",
+    "@types/morgan": "^1.7.37",
+    "@types/supertest": "^2.0.8",
+    "body-parser": "^1.19.0",
+    "crypto-js": "^3.1.9-1",
+    "dotenv": "^8.1.0",
+    "ejs": "^2.7.1",
+    "express": "^4.17.1",
+    "mongoose": "^5.7.4",
+    "morgan": "^1.9.1",
+    "typescript": "^3.6.4"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.1",
+    "supertest": "^4.0.2",
+    "ts-node-dev": "^1.0.0-pre.43"
+  }
+}
