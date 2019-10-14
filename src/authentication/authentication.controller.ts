@@ -37,7 +37,7 @@ class AuthenticationController implements Controller {
                 user,
             } = await this.authenticationService.register(userData);
             response.setHeader('Set-Cookie', [cookie]);
-            response.send(user);
+            response.redirect('/')
         } catch (error) {
             next(error);
         }
@@ -53,7 +53,7 @@ class AuthenticationController implements Controller {
                 const tokenData = this.createToken(user);
                 const cookie = this.createCookie(tokenData);
                 response.setHeader('Set-Cookie', [cookie]);
-                response.send(user);
+                response.redirect('/')
             } else {
                 next(new WrongCredentialsException());
             }
@@ -63,8 +63,8 @@ class AuthenticationController implements Controller {
     }
 
     private loggingOut = (request: express.Request, response: express.Response) => {
-        response.setHeader('Set-Cookie', ['Authorization=;Max-age=0']);
-        response.send(200);
+        response.setHeader('Set-Cookie', [`Authorization=; Max-age=${Date.now}; Path=/`]);
+        response.redirect('/')
     }
 
     private createCookie(tokenData: TokenData) {

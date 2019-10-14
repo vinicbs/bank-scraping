@@ -26,12 +26,6 @@ class App {
         this.initializeMiddlewares();
         this.initializeErrorHandling();
         this.initializeControllers(controllers);
-
-        this.app.get('/', (request: express.Request, response: express.Response) => {
-            response.render('login', {
-                message: 'Welcome to bank-scraper !!'
-            })
-        });
     }
 
     public listen() {

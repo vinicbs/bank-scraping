@@ -1,7 +1,9 @@
+<!DOCTYPE html>
 <html>
 
 <head>
-    <title>bank-scraping</title>
+    <meta charset="utf-8">
+    <title>Login</title>
     <style>
         .login-form {
             width: 300px;
@@ -39,14 +41,16 @@
 </head>
 
 <body>
-    <div style="display: flex;justify-content: center">
-        <h1>
-            <%= message %>
-        </h1>
-    </div>
     <div class="login-form">
-        <form action="/auth/logout" method="POST" style="margin-top: 1rem;">
-            <input type="submit" value="Logout">
+        <h1>Create Account</h1>
+        <form action="auth/register" method="POST">
+            <input type="text" name="name" placeholder="Nome" required>
+            <input type="text" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Senha" required>
+            <input type="submit" value="Registrar">
+        </form>
+        <form action="/" method="GET" style="margin-top: 1rem;">
+            <input type="submit" value="Voltar">
         </form>
     </div>
 </body>

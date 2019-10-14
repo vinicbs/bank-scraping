@@ -1,16 +1,13 @@
 import { NextFunction, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import * as config from '../utils/config';
-// Exceptions
-import AuthenticationTokenMissingException from '../exceptions/AuthenticationTokenMissingException';
-import WrongAuthenticationTokenException from '../exceptions/WrongAuthenticationTokenException';
 // Interfaces
 import DataStoredInToken from '../interfaces/dataStoredInToken';
 import RequestWithUser from '../interfaces/requestWithUser.interface';
 // Users
 import userModel from '../users/users.model';
 
-async function authMiddleware(request: RequestWithUser, response: Response, next: NextFunction) {
+async function authViewMiddleware(request: RequestWithUser, response: Response, next: NextFunction) {
 	const cookies = request.cookies;
 	if (cookies && cookies.Authorization) {
 		try {
@@ -21,14 +18,14 @@ async function authMiddleware(request: RequestWithUser, response: Response, next
 				request.user = user;
 				next();
 			} else {
-				next(new WrongAuthenticationTokenException());
+				response.render('login');
 			}
 		} catch (error) {
-			next(new WrongAuthenticationTokenException());
+			response.render('login');
 		}
 	} else {
-		next(new AuthenticationTokenMissingException());
+		response.render('login');
 	}
 }
 
-export default authMiddleware;
+export default authViewMiddleware;
