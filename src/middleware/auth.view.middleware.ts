@@ -18,13 +18,19 @@ async function authViewMiddleware(request: RequestWithUser, response: Response, 
 				request.user = user;
 				next();
 			} else {
-				response.render('login');
+				response.render('auth/login', {
+					error: true
+				});
 			}
 		} catch (error) {
-			response.render('login');
+			response.render('auth/login', {
+				error: true
+			});
 		}
 	} else {
-		response.render('login');
+		response.render('auth/login', {
+			error: true
+		});
 	}
 }
 

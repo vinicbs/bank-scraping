@@ -27,7 +27,7 @@ class HomeController implements Controller {
     }
 
     private showRegisterPage = (request: express.Request, response: express.Response, next: express.NextFunction) => {
-        response.render('register')
+        response.render('auth/register')
     }
 }
 
