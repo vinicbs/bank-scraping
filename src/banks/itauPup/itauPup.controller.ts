@@ -4,32 +4,32 @@ import * as puppeteer from 'puppeteer'
 import * as request from 'request';
 import axios from 'axios';
 
-// Users
+// Itau
 import Controller from '../../interfaces/controller.interface';
+import CreateItauPupDto from './itauPup.dto';
+import ItauPup from './itauPup.interface'
 // Exceptions
 import HttpException from '../../exceptions/HttpException';
 // Middlewares
 import validationMiddleware from '../../middleware/validation.middleware';
 import authViewMiddleware from '../../middleware/auth.view.middleware'
 
-class ItauMobController implements Controller {
-    public path = '/itaumob';
+class ItauPupController implements Controller {
+    public path = '/itau-pup';
     public router = express.Router();
     public itauUrl = "https://www.itau.com.br";
-    public branch = '';
-    public account = '';
-    public account_digit = '';
-    public password = '';
+    private itau: ItauPup;
 
     constructor() {
         this.initializeRoutes();
     }
 
     public initializeRoutes() {
-        this.router.get(this.path, this.initAuth);
+        this.router.post(this.path, (authViewMiddleware), this.initAuth);
     }
 
     private initAuth = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        this.itau = request.body;
         const browser = await puppeteer.launch({
             headless: false,
             //devtools: false,
@@ -44,14 +44,17 @@ class ItauMobController implements Controller {
         await this.passwordLogin(page);
         await this.closePopup(page);
         await this.checkBankStatament(page);
+        await page.close()
+        await browser.close()
+        response.redirect('/')
     }
 
     private firstPage = async (page: puppeteer.Page) => {
         console.log('Opening bank homepage...');
         await page.goto(this.itauUrl);
         console.log('Homepage loaded.');
-        await page.type('#agencia', this.branch);
-        await page.type('#conta', this.account);
+        await page.type('#agencia', this.itau.branch);
+        await page.type('#conta', this.itau.account);
         console.log('Account and branch number has been filled.');
         await page.waitFor(500);
         await page.click('#btnLoginSubmit');
@@ -64,7 +67,7 @@ class ItauMobController implements Controller {
         let keyClickOption = { delay: 300 };
         await page.waitFor(500);
         console.log('Filling account password...');
-        for (const digit of this.password) {
+        for (const digit of this.itau.password) {
             await passwordKeys[digit].click(keyClickOption);
         }
         console.log('Password has been filled...login...');
@@ -106,31 +109,39 @@ class ItauMobController implements Controller {
         let options = await page.$x('//select[class=contains(text(), "select")]');
         await options[0].select('90')
         console.log('Selected last 90 days.')
+        await this.checkReceivedStatement(page);
+        await this.checkSpentStatement(page);
+    }
+
+    private checkReceivedStatement = async (page: puppeteer.Page) => {
         await page.waitFor(3000);
         let buttonEntradas = await page.$x('//button[class=contains(text(), "entradas-filtro-extrato-pf")]');
         for (const button of buttonEntradas) {
             let text: string = await page.evaluate(button => button.textContent, button)
             if (text.includes('entradas')) {
-                await button.click()
+                await button.click();
                 break;
             }
         }
         console.log('Clicked Entradas');
         await page.waitFor(2000);
-        let somador = 0;
+        let total = 0;
         let entries = await page.$x('//td[class=contains(text(), "valor-lancamento-positivo-pf")]');
         for (const entry of entries) {
             let text = await page.evaluate(entry => entry.textContent, entry)
             if (!text.includes('/')) {
                 let entryValue = parseFloat(text.replace(/\./g, '').replace(/,/g, "."));
                 if (entryValue) {
-                    somador += entryValue;
-                    console.log('FLOAT: ', entryValue)
+                    total += entryValue;
+                    //console.log('FLOAT: ', entryValue)
                 }
             }
         }
-        console.log('Seus ganhos foram: ', somador)
-        await page.waitFor(1000);
+        console.log('Seus ganhos foram: ', total)
+    }
+
+    private checkSpentStatement = async (page: puppeteer.Page) => {
+        await page.waitFor(2000);
         let buttonSaidas = await page.$x('//button[class=contains(text(), "entradas-filtro-extrato-pf")]');
         for (const button of buttonSaidas) {
             let text: string = await page.evaluate(button => button.textContent, button)
@@ -141,20 +152,20 @@ class ItauMobController implements Controller {
         }
         console.log('Clicked Saidas');
         await page.waitFor(2000);
-        let negator = 0;
+        let total = 0;
         let nentries = await page.$x('//td[class=contains(text(), "valor-lancamento-negativo-pf")]');
         for (const entry of nentries) {
             let text = await page.evaluate(entry => entry.textContent, entry)
             if (!text.includes('/')) {
                 let entryValue = parseFloat(text.replace(/\./g, '').replace(/,/g, "."));
                 if (entryValue) {
-                    negator += entryValue;
-                    console.log('FLOATN: ', entryValue)
+                    total += entryValue;
+                    //console.log('FLOATN: ', entryValue)
                 }
             }
         }
-        console.log('Você gastou: ', negator);
+        console.log('Você gastou: ', total);
     }
 }
 
-export default ItauMobController;
+export default ItauPupController;
