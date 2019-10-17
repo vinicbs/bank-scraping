@@ -4,53 +4,39 @@
 <head>
     <meta charset="utf-8">
     <title>Login</title>
-    <style>
-        .login-form {
-            width: 300px;
-            margin: 0 auto;
-            font-family: Tahoma, Geneva, sans-serif;
-        }
-
-        .login-form h1 {
-            text-align: center;
-            color: #4d4d4d;
-            font-size: 24px;
-            padding: 20px 0 20px 0;
-        }
-
-        .login-form input[type="password"],
-        .login-form input[type="text"] {
-            width: 100%;
-            padding: 15px;
-            border: 1px solid #dddddd;
-            margin-bottom: 15px;
-            box-sizing: border-box;
-        }
-
-        .login-form input[type="submit"] {
-            width: 100%;
-            padding: 15px;
-            background-color: #535b63;
-            border: 0;
-            box-sizing: border-box;
-            cursor: pointer;
-            font-weight: bold;
-            color: #ffffff;
-        }
-    </style>
+    <link href="StyleSheet.css" rel="stylesheet" type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 </head>
 
 <body>
+    <script>
+        function register(name, email, password) {
+            $.ajax({
+                type: 'POST',
+                url: '/auth/register/',
+                data: {
+                    name,
+                    email,
+                    password
+                }
+            }).done(function (data) {
+                location.assign('/')
+            }).fail(function (jqXHR, textStatus, err) {
+                $('#errorBox').show().html('Erro: ' + JSON.parse(jqXHR.responseText).message)
+            })
+        }
+    </script>
     <div class="login-form">
-        <h1>Create Account</h1>
-        <form action="auth/register" method="POST">
-            <input type="text" name="name" placeholder="Nome" required>
-            <input type="text" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Senha" required>
-            <input type="submit" value="Registrar">
-        </form>
+        <h1>Registrar</h1>
+        <div id="errorBox" class="error-box" style="display: none;"></div>
+        <input id="name" type="text" placeholder="Nome">
+        <input id="email" type="text" placeholder="Email">
+        <input id="password" type="password" placeholder="Password">
+        <button onclick="register(document.getElementById('name').value,
+                document.getElementById('email').value,
+                document.getElementById('password').value)">Registrar</button>
         <form action="/" method="GET" style="margin-top: 1rem;">
-            <input type="submit" value="Voltar">
+            <button type="submit">Voltar</button>
         </form>
     </div>
 </body>

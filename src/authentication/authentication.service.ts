@@ -14,7 +14,7 @@ class AuthenticationService {
 		if (
 			await this.user.findOne({ email: userData.email })
 		) {
-			throw new UserWithThatEmailAlreadyExistsException(userData.email);
+			throw 'Ja existe algum usuario com esse email'
 		}
 		const hashedPassword = await bcrypt.hash(userData.password, 10);
 		const user = await this.user.create({

@@ -15,7 +15,7 @@ async function authViewMiddleware(request: RequestWithUser, response: Response, 
 			const id = verificationResponse._id;
 			const user = await userModel.findById(id);
 			if (user) {
-				request.user = user;
+				response.locals.user = user;
 				next();
 			} else {
 				response.render('auth/login', {

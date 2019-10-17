@@ -1,60 +1,42 @@
+<!DOCTYPE html>
 <html>
 
 <head>
     <title>bank-scraping</title>
-    <style>
-        .login-form {
-            width: 300px;
-            margin: 0 auto;
-            font-family: Tahoma, Geneva, sans-serif;
-        }
-
-        .login-form h1 {
-            text-align: center;
-            color: #4d4d4d;
-            font-size: 24px;
-            padding: 20px 0 20px 0;
-        }
-
-        .login-form input[type="password"],
-        .login-form input[type="text"] {
-            width: 100%;
-            padding: 15px;
-            border: 1px solid #dddddd;
-            margin-bottom: 15px;
-            box-sizing: border-box;
-        }
-
-        .login-form input[type="submit"] {
-            width: 100%;
-            padding: 15px;
-            background-color: #535b63;
-            border: 0;
-            box-sizing: border-box;
-            cursor: pointer;
-            font-weight: bold;
-            color: #ffffff;
-        }
-    </style>
+    <link href="StyleSheet.css" rel="stylesheet" type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 </head>
 
 <body>
-    <div style="display: flex;justify-content: center">
-        <h1>
-            <%= message %>
-        </h1>
-    </div>
+    <script>
+        function checkItau(branch, account, password) {
+            console.log('oi')
+            $.ajax({
+                type: 'POST',
+                url: '/itau-pup',
+                data: {
+                    branch,
+                    account,
+                    password
+                }
+            }).done(function (data) {
+                //location.reload()
+            }).fail(function (jqXHR, textStatus, err) {
+                $('#errorBox').show().html('Erro: ' + JSON.parse(jqXHR.responseText).message)
+            })
+        }
+    </script>
     <div class="login-form">
-        <form action="/itau-pup" method="POST" style="margin-top: 1rem;">
-            <input type="text" name="branch" placeholder="Branch" required>
-            <input type="text" name="account" placeholder="Account" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <input type="submit" value="Check Itau">
-        </form>
-    </div>
-    <div class="login-form">
+        <h1>Bank Scrapper!</h1>
+        <div id="errorBox" class="error-box" style="display: none;"></div>
+        <input id="branch" type="text" placeholder="Branch">
+        <input id="account" type="text" placeholder="Account">
+        <input id="password" type="password" placeholder="Password">
+        <button
+            onclick="checkItau(document.getElementById('branch').value, document.getElementById('account').value, document.getElementById('password').value)">Check
+            Itau</button>
         <form action="/auth/logout" method="POST" style="margin-top: 1rem;">
-            <input type="submit" value="Logout">
+            <button type="submit">Logout</button>
         </form>
     </div>
 </body>

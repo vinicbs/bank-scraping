@@ -18,6 +18,9 @@ class App {
             extended: true
         }));
 
+        this.app.use(express.static(__dirname + '/views/assets'));
+
+
         this.app.set('views', path.join(__dirname, 'views'));
         this.app.set('view engine', 'ejs');
         this.app.set('port', config.SERVER_PORT);

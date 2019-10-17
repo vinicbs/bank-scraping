@@ -12,7 +12,7 @@ import ItauPup from './itauPup.interface'
 import HttpException from '../../exceptions/HttpException';
 // Middlewares
 import validationMiddleware from '../../middleware/validation.middleware';
-import authViewMiddleware from '../../middleware/auth.view.middleware'
+import authMiddleware from '../../middleware/auth.view.middleware'
 
 class ItauPupController implements Controller {
     public path = '/itau-pup';
@@ -25,10 +25,11 @@ class ItauPupController implements Controller {
     }
 
     public initializeRoutes() {
-        this.router.post(this.path, (authViewMiddleware), this.initAuth);
+        this.router.post(this.path, authMiddleware, validationMiddleware(CreateItauPupDto), this.initAuth);
     }
 
     private initAuth = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        console.log(response.locals)
         this.itau = request.body;
         const browser = await puppeteer.launch({
             headless: false,

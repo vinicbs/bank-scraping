@@ -2,7 +2,6 @@ import * as bcrypt from 'bcrypt';
 import * as express from 'express';
 import * as jwt from 'jsonwebtoken';
 import * as config from '../utils/config';
-import WrongCredentialsException from '../exceptions/WrongCredentialsException';
 import Controller from '../interfaces/controller.interface';
 import DataStoredInToken from '../interfaces/dataStoredInToken';
 import TokenData from '../interfaces/tokenData.interface';
@@ -37,9 +36,15 @@ class AuthenticationController implements Controller {
                 user,
             } = await this.authenticationService.register(userData);
             response.setHeader('Set-Cookie', [cookie]);
-            response.redirect('/')
+            response.send({
+                status: true,
+                message: 'Registro efetuado com sucesso'
+            })
         } catch (error) {
-            next(error);
+            response.status(400).send({
+                status: false,
+                message: error
+            })
         }
     }
 
@@ -53,12 +58,21 @@ class AuthenticationController implements Controller {
                 const tokenData = this.createToken(user);
                 const cookie = this.createCookie(tokenData);
                 response.setHeader('Set-Cookie', [cookie]);
-                response.redirect('/')
+                response.send({
+                    status: true,
+                    message: 'Login efetuado com sucesso'
+                })
             } else {
-                next(new WrongCredentialsException());
+                response.status(400).send({
+                    status: false,
+                    message: 'Login ou senha invalidos'
+                })
             }
         } else {
-            next(new WrongCredentialsException());
+            response.status(400).send({
+                status: false,
+                message: 'Login ou senha invalidos'
+            })
         }
     }
 
