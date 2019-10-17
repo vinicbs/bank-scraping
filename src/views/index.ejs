@@ -26,9 +26,10 @@
                 $('#loading').hide();
                 $('#checkButton').show();
                 $('#resultBox').show();
+                $('#result0').html(`Saldo atual: ${data.balance} R$`);
                 $('#result1').html(`Nos ultimos ${$('#slct').find(':selected').val()} dias:`);
-                $('#result2').html('Recebeu: ' + data.statement.received + 'R$');
-                $('#result3').html('Gastou: ' + data.statement.spent + 'R$');
+                $('#result2').html('Recebeu: ' + data.statement.received + ' R$');
+                $('#result3').html('Gastou: ' + data.statement.spent + ' R$');
             }).fail(function (jqXHR, textStatus, err) {
                 $('#loading').hide();
                 $('#checkButton').show();
@@ -69,6 +70,7 @@
             <button type="submit">Logout</button>
         </form>
         <div id="resultBox" class="result-box" style="display: none;">
+            <p id="result0"></p>
             <p id="result1"></p>
             <p id="result2"></p>
             <p id="result3"></p>

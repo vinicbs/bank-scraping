@@ -14,6 +14,7 @@ import HttpException from '../../exceptions/HttpException';
 // Middlewares
 import validationMiddleware from '../../middleware/validation.middleware';
 import authMiddleware from '../../middleware/auth.view.middleware'
+import { ValidationError } from 'class-validator';
 
 class ItauPupController implements Controller {
     public path = '/itau-pup';
@@ -43,28 +44,48 @@ class ItauPupController implements Controller {
     }
 
     private initAuth = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
-        console.log(request.body)
+
         this.itau = request.body;
-        const browser = await puppeteer.launch({
-            headless: false,
-            //devtools: false,
-            timeout: 600000
-        });
-        const page = await browser.newPage();
-        await page.setViewport({
-            width: 1024,
-            height: 768
-        });
-        await this.firstPage(page);
-        await this.passwordLogin(page);
-        await this.closePopup(page);
-        let statement = await this.checkBankStatament(page, request.body.days);
-        await page.close()
-        await browser.close()
-        response.send({
-            status: true,
-            statement
-        })
+        try {
+            const browser = await puppeteer.launch({
+                headless: true,
+                //devtools: false,
+                timeout: 600000
+            });
+            const page = await browser.newPage();
+            await page.setViewport({
+                width: 1024,
+                height: 768
+            });
+            try {
+                await this.firstPage(page);
+                await this.passwordLogin(page);
+                await this.closePopup(page);
+                let balance = await this.checkBankBalance(page);
+                let statement = await this.checkBankStatament(page, request.body.days);
+                await page.close()
+                await browser.close()
+                response.send({
+                    status: true,
+                    balance: balance,
+                    statement: statement
+                })
+            } catch (err) {
+                await page.close()
+                await browser.close()
+                response.status(500).send({
+                    status: false,
+                    message: 'não foi possivel efetuar o scraping da conta'
+                })
+            }
+        } catch (err) {
+            response.status(500).send({
+                status: false,
+                message: 'erro'
+            })
+        }
+
+
     }
 
     private firstPage = async (page: puppeteer.Page) => {
@@ -115,6 +136,13 @@ class ItauPupController implements Controller {
             .then(() => page.evaluate(() => popFechar()))
             .catch(() => { });
     };
+
+    private checkBankBalance = async (page: puppeteer.Page) => {
+        console.log('Getting bank balance')
+        const element = await page.$('.valor-fatura');
+        const text = await page.evaluate(element => element.textContent, element);
+        return parseFloat(text.replace(/R\$/, '').replace(/\./g, '').replace(/,/g, "."))
+    }
 
     private checkBankStatament = async (page: puppeteer.Page, days: string) => {
         console.log('Opening statement page...');
