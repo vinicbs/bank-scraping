@@ -10,18 +10,28 @@
 <body>
     <script>
         function checkItau(branch, account, password) {
-            console.log('oi')
+            $('#errorBox').hide()
+            $('#checkButton').hide();
+            $('#loading').show();
             $.ajax({
                 type: 'POST',
                 url: '/itau-pup',
                 data: {
                     branch,
                     account,
-                    password
+                    password,
+                    days: $('#slct').find(':selected').val()
                 }
             }).done(function (data) {
-                //location.reload()
+                $('#loading').hide();
+                $('#checkButton').show();
+                $('#resultBox').show();
+                $('#result1').html(`Nos ultimos ${$('#slct').find(':selected').val()} dias:`);
+                $('#result2').html('Recebeu: ' + data.statement.received + 'R$');
+                $('#result3').html('Gastou: ' + data.statement.spent + 'R$');
             }).fail(function (jqXHR, textStatus, err) {
+                $('#loading').hide();
+                $('#checkButton').show();
                 $('#errorBox').show().html('Erro: ' + JSON.parse(jqXHR.responseText).message)
             })
         }
@@ -32,12 +42,37 @@
         <input id="branch" type="text" placeholder="Branch">
         <input id="account" type="text" placeholder="Account">
         <input id="password" type="password" placeholder="Password">
-        <button
+        <div class="select">
+            <select name="slct" id="slct">
+                <option value="7" selected disabled>Escolha uma opção</option>
+                <option value="3">Ultimos 3 dias</option>
+                <option value="5">Ultimos 5 dias</option>
+                <option value="7">Ultimos 7 dias</option>
+                <option value="15">Ultimos 15 dias</option>
+                <option value="30">Ultimos 30 dias</option>
+                <option value="60">Ultimos 60 dias</option>
+                <option value="90">Ultimos 90 dias</option>
+            </select>
+        </div>
+        <button id="checkButton"
             onclick="checkItau(document.getElementById('branch').value, document.getElementById('account').value, document.getElementById('password').value)">Check
             Itau</button>
+        <div id="loading" class="loading" style="display: none;">
+            <div class="lds-ring">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
         <form action="/auth/logout" method="POST" style="margin-top: 1rem;">
             <button type="submit">Logout</button>
         </form>
+        <div id="resultBox" class="result-box" style="display: none;">
+            <p id="result1"></p>
+            <p id="result2"></p>
+            <p id="result3"></p>
+        </div>
     </div>
 </body>
 

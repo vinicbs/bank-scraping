@@ -8,6 +8,7 @@ import axios from 'axios';
 import Controller from '../../interfaces/controller.interface';
 import CreateItauPupDto from './itauPup.dto';
 import ItauPup from './itauPup.interface'
+import ItauPupModel from './itauPup.model'
 // Exceptions
 import HttpException from '../../exceptions/HttpException';
 // Middlewares
@@ -19,6 +20,7 @@ class ItauPupController implements Controller {
     public router = express.Router();
     public itauUrl = "https://www.itau.com.br";
     private itau: ItauPup;
+    private itauPup = ItauPupModel;
 
     constructor() {
         this.initializeRoutes();
@@ -26,10 +28,22 @@ class ItauPupController implements Controller {
 
     public initializeRoutes() {
         this.router.post(this.path, authMiddleware, validationMiddleware(CreateItauPupDto), this.initAuth);
+        this.router.post(this.path + '/create', validationMiddleware(CreateItauPupDto), authMiddleware, this.createItauPup)
+    }
+
+    private createItauPup = async (request: express.Request, response: express.Response) => {
+        const itauPupData: CreateItauPupDto = request.body;
+        const createdItauPup = new this.itauPup({
+            ...itauPupData,
+            user: response.locals.user._id,
+        });
+        const savedItauPup = await createdItauPup.save();
+        await savedItauPup.populate('user', '-password').execPopulate();
+        response.send(savedItauPup);
     }
 
     private initAuth = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
-        console.log(response.locals)
+        console.log(request.body)
         this.itau = request.body;
         const browser = await puppeteer.launch({
             headless: false,
@@ -44,10 +58,13 @@ class ItauPupController implements Controller {
         await this.firstPage(page);
         await this.passwordLogin(page);
         await this.closePopup(page);
-        await this.checkBankStatament(page);
+        let statement = await this.checkBankStatament(page, request.body.days);
         await page.close()
         await browser.close()
-        response.redirect('/')
+        response.send({
+            status: true,
+            statement
+        })
     }
 
     private firstPage = async (page: puppeteer.Page) => {
@@ -62,7 +79,7 @@ class ItauPupController implements Controller {
         await page.waitFor('div.modulo-login');
     }
 
-    private passwordLogin = async (page: puppeteer.Page) => { 
+    private passwordLogin = async (page: puppeteer.Page) => {
         console.log('Password page loaded.');
         let passwordKeys = await this.passwordMap(page);
         let keyClickOption = { delay: 300 };
@@ -99,7 +116,7 @@ class ItauPupController implements Controller {
             .catch(() => { });
     };
 
-    private checkBankStatament = async (page: puppeteer.Page) => {
+    private checkBankStatament = async (page: puppeteer.Page, days: string) => {
         console.log('Opening statement page...');
         await page.waitFor('a[id="VerExtrato"]');
         console.log('Waited for ver extrato.');
@@ -108,10 +125,11 @@ class ItauPupController implements Controller {
         await page.waitFor(2000);
         console.log('Statement page loaded.');
         let options = await page.$x('//select[class=contains(text(), "select")]');
-        await options[0].select('90')
-        console.log('Selected last 90 days.')
-        await this.checkReceivedStatement(page);
-        await this.checkSpentStatement(page);
+        await options[0].select(days)
+        console.log(`Selected last ${days} days.`)
+        let received = await this.checkReceivedStatement(page);
+        let spent = await this.checkSpentStatement(page);
+        return ({ received, spent })
     }
 
     private checkReceivedStatement = async (page: puppeteer.Page) => {
@@ -138,7 +156,7 @@ class ItauPupController implements Controller {
                 }
             }
         }
-        console.log('Seus ganhos foram: ', total)
+        return (Math.round(total))
     }
 
     private checkSpentStatement = async (page: puppeteer.Page) => {
@@ -165,7 +183,7 @@ class ItauPupController implements Controller {
                 }
             }
         }
-        console.log('Você gastou: ', total);
+        return (Math.round(total))
     }
 }
 

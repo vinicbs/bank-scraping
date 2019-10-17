@@ -1,6 +1,5 @@
 interface ItauPup {
-    _id: string;
-    userId: string;
+    _userId: string;
     branch: string;
     account: string;
     password: string;

@@ -11,6 +11,6 @@ const itauPupSchema = new mongoose.Schema({
     password: String
 })
 
-const itauPupModel = mongoose.model<ItauPup & mongoose.Document>('User', itauPupSchema);
+const itauPupModel = mongoose.model<ItauPup & mongoose.Document>('ItauPup', itauPupSchema);
 
 export default itauPupModel;
