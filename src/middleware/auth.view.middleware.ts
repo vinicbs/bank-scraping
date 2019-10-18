@@ -17,17 +17,17 @@ async function authViewMiddleware(request: Request, response: Response, next: Ne
 				response.locals.user = user;
 				next();
 			} else {
-				response.render('auth/login', {
+				response.status(401).render('auth/login', {
 					error: true
 				});
 			}
 		} catch (error) {
-			response.render('auth/login', {
+			response.status(401).render('auth/login', {
 				error: true
 			});
 		}
 	} else {
-		response.render('auth/login', {
+		response.status(401).render('auth/login', {
 			error: true
 		});
 	}

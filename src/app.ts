@@ -1,5 +1,4 @@
 import * as express from 'express';
-import * as logger from 'morgan';
 import * as path from 'path';
 import * as mongoose from 'mongoose';
 import * as cookieParser from 'cookie-parser';
@@ -29,6 +28,10 @@ class App {
         this.initializeMiddlewares();
         this.initializeErrorHandling();
         this.initializeControllers(controllers);
+    }
+
+    public getServer() {
+        return this.app;
     }
 
     public listen() {

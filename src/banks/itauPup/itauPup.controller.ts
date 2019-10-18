@@ -1,5 +1,4 @@
 import * as express from 'express';
-import * as cheerio from 'cheerio';
 import * as puppeteer from 'puppeteer'
 import * as request from 'request';
 import axios from 'axios';
@@ -49,7 +48,7 @@ class ItauPupController implements Controller {
         try {
             const browser = await puppeteer.launch({
                 headless: true,
-                //devtools: false,
+                devtools: false,
                 timeout: 600000
             });
             const page = await browser.newPage();
@@ -60,7 +59,7 @@ class ItauPupController implements Controller {
             try {
                 await this.firstPage(page);
                 await this.passwordLogin(page);
-                await this.closePopup(page);
+                //await this.closePopup(page);
                 let balance = await this.checkBankBalance(page);
                 let statement = await this.checkBankStatament(page, request.body.days);
                 await page.close()
@@ -71,6 +70,7 @@ class ItauPupController implements Controller {
                     statement: statement
                 })
             } catch (err) {
+                console.log(err)
                 await page.close()
                 await browser.close()
                 response.status(500).send({
@@ -79,6 +79,7 @@ class ItauPupController implements Controller {
                 })
             }
         } catch (err) {
+            console.log(err)
             response.status(500).send({
                 status: false,
                 message: 'erro'
@@ -132,12 +133,13 @@ class ItauPupController implements Controller {
     }
 
     private closePopup = async (page: puppeteer.Page) => {
-        await page.waitForSelector('div.mfp-wrap', { timeout: 4000 })
-            .then(() => page.evaluate(() => popFechar()))
-            .catch(() => { });
+        // await page.waitForSelector('div.mfp-wrap', { timeout: 4000 })
+        //     .then(() => page.evaluate(() => popFechar()))
+        //     .catch(() => { });
     };
 
     private checkBankBalance = async (page: puppeteer.Page) => {
+        await page.waitFor(3000);
         console.log('Getting bank balance')
         const element = await page.$('.valor-fatura');
         const text = await page.evaluate(element => element.textContent, element);

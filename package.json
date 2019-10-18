@@ -8,7 +8,8 @@
     "test": "mocha -r ts-node/register tests/**/*.test.ts --exit",
     "test-dev": "nodemon --watch . --ext ts --exec \"mocha -r ts-node/register tests/**/*.test.ts\"",
     "dev": "ts-node-dev --respawn --transpileOnly ./src/server.ts",
-    "prod": "tsc && node ./build/app.js"
+    "prod": "tsc && node ./build/app.js",
+    "seeds": "node seed.js"
   },
   "author": "Vinicius Costa Barbosa dos Santos",
   "license": "ISC",
@@ -19,7 +20,6 @@
     "@types/express": "^4.17.1",
     "@types/mocha": "^5.2.7",
     "@types/mongoose": "^5.5.20",
-    "@types/morgan": "^1.7.37",
     "@types/puppeteer": "^1.20.2",
     "@types/request": "^2.48.3",
     "@types/supertest": "^2.0.8",
@@ -35,7 +35,7 @@
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.7.4",
-    "morgan": "^1.9.1",
+    "mongoose-seed": "^0.6.0",
     "puppeteer": "^1.20.0",
     "request": "^2.88.0",
     "typescript": "^3.6.4"

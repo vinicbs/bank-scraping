@@ -2,9 +2,17 @@
 
 A simple Web Scraper NodeJS project to keep up with your banking statement and some other informations
 
+## Informations
+
+| Bank| Info    | Statement Backlog in Days| Method | Status |
+| --- | ------- | -------------------------- | ------ | ------ |
+| Itaú| Current balance, total spent and total received in period of time | 3, 5, 7, 15, 30, 60, 90 | Headless Browser| OK |
+|     |         |                            |        |        |
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+
 
 ### Prerequisites
 
@@ -36,12 +44,22 @@ Create a file named *.env* in the main project folder and copy the code below to
 ```
 DB_HOST=*path to your mongodb host*
 SERVER_PORT=*port you wish to run the application*
+JWT_SECRET=*token to verify user authentication*
+ITAU_BRANCH=*itau card branch for testing*
+ITAU_ACCOUNT=*itau card account for testing*
+ITAU_PASSWORD=*itau online password for testing*
 ```
 
-Install nodemon globally
+Install nodemon globally - *recommended*
 
 ```
 npm install -g nodemon
+```
+
+Run database seeds
+
+```
+npm run seeds
 ```
 
 Run to start the application in development mode
@@ -55,7 +73,7 @@ npm run dev
 Run to start the tests
 
 ```
-npm run test-dev
+npm run test
 ```
 
 ## Commit messages
